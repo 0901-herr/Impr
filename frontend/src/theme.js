@@ -9,13 +9,14 @@ export const colorTokens = {
     500: "#696969",
     600: "#565656",
     700: "#373737",
-    800: "#2D2D2D",
+    800: "#1C1C1E",
     900: "#222222",
-    1000: "#000000",
+    1000: "#2F2F2F",
+    1100: "#000000",
   },
   primary: {
-    0: "#FFFFFF",
-    50: "#000000",
+    0: "#FF7E5F",
+    50: "#FEB47B",
   },
 };
 
@@ -28,16 +29,19 @@ export const themeSettings = (mode) => {
         ? {
             // palette values for light mode
             primary: {
-              light: colorTokens.primary[50],
-              main: colorTokens.primary[0],
+              light: colorTokens.primary[0],
+              main: colorTokens.primary[50],
             },
             neutral: {
-              title: colorTokens.grey[1000],
+              line: colorTokens.grey[400],
+              menuText: colorTokens.grey[0],
+              title: colorTokens.grey[1100],
               calendar: colorTokens.grey[100],
               dates: colorTokens.grey[600],
               description: colorTokens.grey[300],
               popUpText: colorTokens.grey[300],
               popUp: colorTokens.grey[0],
+              hover: colorTokens.grey[1000],
               menu: colorTokens.grey[800],
             },
             background: {
@@ -53,12 +57,15 @@ export const themeSettings = (mode) => {
               main: colorTokens.primary[50],
             },
             neutral: {
+              line: colorTokens.grey[400],
+              menuText: colorTokens.grey[0],
               title: colorTokens.grey[0],
               calendar: colorTokens.grey[700],
               dates: colorTokens.grey[0],
               description: colorTokens.grey[200],
               popUpText: colorTokens.grey[500],
               popUp: colorTokens.grey[800],
+              hover: colorTokens.grey[1000],
               menu: colorTokens.grey[800],
             },
             background: {
