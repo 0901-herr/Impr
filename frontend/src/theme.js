@@ -3,6 +3,7 @@ export const colorTokens = {
   grey: {
     0: "#FFFFFF",
     100: "#F3F3F3",
+    150: "#F5F5F5",
     200: "#CECECE",
     300: "#BBBBBB",
     400: "#A8A8A8",
@@ -34,6 +35,7 @@ export const themeSettings = (mode) => {
             },
             neutral: {
               line: colorTokens.grey[400],
+              hoverReview: colorTokens.grey[150],
               menuText: colorTokens.grey[0],
               title: colorTokens.grey[1100],
               calendar: colorTokens.grey[100],
@@ -58,6 +60,7 @@ export const themeSettings = (mode) => {
             },
             neutral: {
               line: colorTokens.grey[400],
+              hoverReview: colorTokens.grey[700],
               menuText: colorTokens.grey[0],
               title: colorTokens.grey[0],
               calendar: colorTokens.grey[700],

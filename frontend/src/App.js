@@ -1,7 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
-import HomePage from "./screens/Dashboard/index.jsx";
+import HomePage from "./screens/Home/index.jsx";
 import AuthPage from "./screens/Auth/index.jsx";
 import ProfilePage from "./screens/Profile/index.jsx";
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -17,11 +17,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setMode, setLogout } from "state";
 import { useNavigate } from "react-router-dom";
-import FlexBetween from "../../components/FlexBetween";
 
 import GradientText from "../../components/GradientText";
 import { sectionsData } from "./data.ts";
 import { menuOptionsData } from "./data.ts";
+
+import SectionDataService from "../../services/reviews";
 
 const Navbar = (props) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
@@ -40,9 +41,38 @@ const Navbar = (props) => {
   const hoverCol = theme.palette.neutral.hover;
 
   const [sections, setSections] = useState(sectionsData);
+  const [currentSection, setCurrentSection] = useState(null);
 
-  const [currentSection, setCurrentSection] = useState(sections[0]);
-  const { setIsNavBarOpen } = props;
+  const { setIsNavBarOpen, setSectionId, setSectionTitle, setIsAddNewSection } =
+    props;
+
+  const onClickSection = (section) => {
+    setCurrentSection(section);
+    setSectionId(section._id);
+    setSectionTitle(section.title);
+  };
+
+  const retrieveSections = () => {
+    SectionDataService.getAll()
+      .then((response) => {
+        console.log(response.data);
+        setSections(response.data.sections);
+
+        if (sections != null) {
+          onClickSection(response.data.sections[0]);
+        }
+
+        console.log("currentSection: ", currentSection);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  useEffect(() => {
+    retrieveSections();
+  }, []);
+
   return (
     <Box
       width="260px"
@@ -72,27 +102,28 @@ const Navbar = (props) => {
         }}
       >
         <Box height="70vh" p="0.5rem">
-          <Box>
-            <Typography
-              align="center"
-              p="0.5rem"
-              fontWeight="600"
-              fontSize="15px"
-              color={menuText}
-              border="0.8px solid"
-              borderRadius="6px"
-              borderColor={line}
-              sx={{
-                "&:hover": {
-                  background: `linear-gradient(to bottom right, ${primaryLight}, ${primaryMain})`,
-                  cursor: "pointer",
-                },
-              }}
-            >
+          {/* Add section button */}
+          <Box
+            align="center"
+            p="0.5rem"
+            border="0.8px solid"
+            borderRadius="6px"
+            borderColor={line}
+            onClick={() => {
+              setIsAddNewSection(true);
+            }}
+            sx={{
+              "&:hover": {
+                cursor: "pointer",
+              },
+            }}
+          >
+            <Typography fontWeight="600" fontSize="15px" color={menuText}>
               add
             </Typography>
           </Box>
 
+          {/* Section titles */}
           <Box mt="1rem">
             {sections.map((section) => (
               <Box
@@ -100,12 +131,15 @@ const Navbar = (props) => {
                 sx={{
                   borderRadius: "6px",
                   "&:hover": {
+                    cursor: "pointer",
                     backgroundColor: hoverCol,
                   },
                 }}
+                onClick={() => {
+                  onClickSection(section);
+                }}
               >
                 <GradientText
-                  // m="1rem 0"
                   fontWeight={currentSection === section ? "600" : "medium"}
                   fontSize="15px"
                   gradientColors={
@@ -113,16 +147,8 @@ const Navbar = (props) => {
                       ? [primaryLight, primaryMain]
                       : [menuText, menuText]
                   }
-                  onClick={() => {
-                    setCurrentSection(section);
-                  }}
-                  sx={{
-                    "&:hover": {
-                      cursor: "pointer",
-                    },
-                  }}
                 >
-                  {section}
+                  {section.title}
                 </GradientText>
               </Box>
             ))}
@@ -131,6 +157,7 @@ const Navbar = (props) => {
 
         <Divider color={menuText} width="100%" />
 
+        {/* Menu options */}
         <Box height="25vh" m="0.25rem 0" p="0rem 0.25rem">
           <Box
             display="flex"

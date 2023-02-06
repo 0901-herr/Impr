@@ -32,8 +32,9 @@ export default class ReviewsController {
   static async apiPostReview(req, res, next) {
     try {
       const reviewId = req.body.review_id;
+      const sectionId = req.body.section_id;
       const title = req.body.title;
-      const photo_path = req.body.photo_path;
+      const picture_path = req.body.picture_path;
       const summary = req.body.summary;
       const rating = req.body.rating;
       const description = req.body.description;
@@ -46,10 +47,10 @@ export default class ReviewsController {
       const date = new Date();
 
       const ReviewResponse = await ReviewsDAO.addReview(
-        reviewId,
+        sectionId,
         userInfo,
         title,
-        photo_path,
+        picture_path,
         summary,
         rating,
         description,
@@ -64,9 +65,10 @@ export default class ReviewsController {
   static async apiUpdateReview(req, res, next) {
     try {
       const reviewId = req.body.review_id;
+      const sectionId = req.body.section_id;
       const userId = req.body.user_id;
       const title = req.body.title;
-      const photo_path = req.body.photo_path;
+      const picture_path = req.body.picture_path;
       const summary = req.body.summary;
       const rating = req.body.rating;
       const description = req.body.description;
@@ -74,9 +76,10 @@ export default class ReviewsController {
 
       const reviewResponse = await ReviewsDAO.updateReview(
         reviewId,
+        sectionId,
         userId,
         title,
-        photo_path,
+        picture_path,
         summary,
         rating,
         description,
