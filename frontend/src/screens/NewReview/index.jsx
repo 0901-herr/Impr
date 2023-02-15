@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
+  Slider,
   Typography,
   InputBase,
   IconButton,
@@ -13,56 +14,15 @@ import Dropzone from "react-dropzone";
 import FlexBetween from "../../components/FlexBetween.jsx";
 import SectionDataService from "../../services/reviews";
 
-const numbers = [
-  {
-    value: "0",
-    label: "0",
-  },
-  {
-    value: "1",
-    label: "1",
-  },
-  {
-    value: "2",
-    label: "2",
-  },
-  {
-    value: "3",
-    label: "3",
-  },
-  {
-    value: "4",
-    label: "4",
-  },
-  {
-    value: "5",
-    label: "5",
-  },
-  {
-    value: "6",
-    label: "6",
-  },
-  {
-    value: "7",
-    label: "7",
-  },
-  {
-    value: "8",
-    label: "8",
-  },
-  {
-    value: "9",
-    label: "9",
-  },
-  {
-    value: "10",
-    label: "10",
-  },
-];
-
 const NewReviewDialog = (props) => {
-  const { setIsAddNewReview, isAddNewReview, sectionId } = props;
-  // const { _id, name } = useSelector((state) => state.user);
+  const {
+    sectionId,
+    currentReview,
+    isEditReview,
+    isAddNewReview,
+    setIsAddNewReview,
+    setIsEditReview,
+  } = props;
   const maxWidth = "600px";
 
   const theme = useTheme();
@@ -76,22 +36,35 @@ const NewReviewDialog = (props) => {
 
   const [title, setTitle] = useState("");
   const [image, setImage] = useState(null);
+  const [picturePath, setPicturePath] = useState(null);
   const [intro, setIntro] = useState("");
-  const [rating, setRating] = useState("");
+  const [rating, setRating] = useState(5);
   const [description, setDescription] = useState("");
   const [isDrag, setIsDrag] = useState(false);
 
   const handleClose = () => {
     setIsAddNewReview(false);
+    setIsEditReview(false);
     clearFields();
+  };
+
+  const handleSliderChange = (event, newValue) => {
+    setRating(newValue);
+  };
+
+  const handleDeleteImage = () => {
+    setImage(null);
+    setPicturePath(null);
+    setIsDrag(false);
   };
 
   const clearFields = () => {
     setTitle("");
     setIntro("");
-    setRating("");
+    setRating(5);
     setDescription("");
     setImage(null);
+    setPicturePath(null);
     setIsDrag(false);
   };
 
@@ -99,7 +72,6 @@ const NewReviewDialog = (props) => {
     const formData = new FormData();
     formData.append("user_id", "53a2b415cc3bd4ebac5eb6d4");
     formData.append("name", "Philippe Yong");
-    // console.log("done", sectionId)
     formData.append("section_id", sectionId);
     formData.append("title", title);
     formData.append("summary", intro);
@@ -109,42 +81,48 @@ const NewReviewDialog = (props) => {
     if (image) {
       formData.append("picture", image);
       formData.append("picture_path", image.name);
+    } else if (picturePath) {
+      formData.append("picture_path", picturePath);
     }
 
-    SectionDataService.createReview(formData)
-      .then((response) => {
-        setIsAddNewReview(false);
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    if (isEditReview) {
+      console.log("editing review id: ", currentReview._id);
+      formData.append("review_id", currentReview._id);
+      console.log("updating review...");
+      SectionDataService.updateReview(formData)
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    } else {
+      SectionDataService.createReview(formData)
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+    setIsAddNewReview(false);
+    setIsEditReview(false);
 
     clearFields();
-    // if (editing) {
-    //   data.review_id = props.location.state.currentReview._id;
-    //   SectionDataService.updateReview(data)
-    //     .then((response) => {
-    //     setIsAddNewReview(false);
-    //       console.log(response.data);
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
-    // } else {
-    //   SectionDataService.createReview(data)
-    //     .then((response) => {
-    //       setIsAddNewReview(false);
-    //       console.log(response.data);
-    //     })
-    //     .catch((e) => {
-    //       console.log(e);
-    //     });
-    // }
   };
 
+  useEffect(() => {
+    if (isEditReview && currentReview) {
+      setTitle(currentReview.title);
+      setIntro(currentReview.summary);
+      setRating(currentReview.rating ?? 0);
+      setDescription(currentReview.description);
+      setPicturePath(currentReview.picture_path);
+    }
+  }, [isEditReview, currentReview]);
+
   return (
-    <Dialog onClose={handleClose} open={isAddNewReview}>
+    <Dialog onClose={handleClose} open={isAddNewReview || isEditReview}>
       <Box width={maxWidth} height="90vh" p="2rem">
         {/* Done button */}
         <Box display="flex" justifyContent="flex-end">
@@ -221,7 +199,7 @@ const NewReviewDialog = (props) => {
                   }}
                 >
                   <input {...getInputProps()} />
-                  {!image ? (
+                  {!image && !picturePath ? (
                     <Box
                       display="flex"
                       flexDirection="column"
@@ -240,12 +218,33 @@ const NewReviewDialog = (props) => {
                       </Typography>
                     </Box>
                   ) : (
-                    <Box>
-                      <Typography>{image.name}</Typography>
-                      <EditOutlined />
-                      <IconButton onClick={() => setImage(null)}>
-                        <DeleteOutlined />
-                      </IconButton>
+                    <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="center"
+                    >
+                      <Typography fontSize="16px" fontWeight="medium">
+                        {picturePath ? picturePath : image.name}
+                      </Typography>
+
+                      <Box
+                        mt="1rem"
+                        width="80px"
+                        display="flex"
+                        flexDirection="row"
+                        justifyContent="space-between"
+                      >
+                        <IconButton>
+                          <EditOutlined
+                            sx={{ color: titleCol, fontSize: "20px" }}
+                          />
+                        </IconButton>
+                        <IconButton onClick={handleDeleteImage}>
+                          <DeleteOutlined
+                            sx={{ color: titleCol, fontSize: "20px" }}
+                          />
+                        </IconButton>
+                      </Box>
                     </Box>
                   )}
                 </Box>
@@ -255,7 +254,7 @@ const NewReviewDialog = (props) => {
         </Box>
 
         {/* Sumarry */}
-        <Box mt="1.5rem">
+        <Box mt="1.75rem">
           <Typography fontSize="18px" fontWeight="bold" color={descriptionCol}>
             intro
           </Typography>
@@ -274,56 +273,36 @@ const NewReviewDialog = (props) => {
         </Box>
 
         {/* Rating */}
-        <Box mt="1.5rem">
+        <Box mt="1.75rem">
           <Typography fontSize="18px" fontWeight="bold" color={descriptionCol}>
             my rating
           </Typography>
-          <Box
-            display="flex"
-            flexDirection="row"
-            justifyContent="space-between"
-          >
-            <Box />
-            <Box display="flex" flexDirection="row">
-              {numbers.map((option) => (
-                <Box width="40px" height="40px" backgroundColor={calendarCol} />
-              ))}
-              {/* <TextField
-                select
-                SelectProps={{
-                  native: true,
-                }}
-                variant="standard"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-                inputProps={{
-                  style: {
-                    fontSize: "20px",
-                    color: descriptionCol,
-                  },
-                }}
-              >
-                {numbers.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </TextField> */}
 
-              {/* <Typography
-                ml="0.6rem"
-                fontSize="46px"
-                fontWeight="bold"
-                color={descriptionCol}
-              >
-                /10
-              </Typography> */}
-            </Box>
+          <Box m="0.5rem 0">
+            <Slider
+              aria-label="Temperature"
+              defaultValue={5}
+              value={rating}
+              valueLabelDisplay="auto"
+              step={1}
+              onChange={handleSliderChange}
+              marks
+              min={0}
+              max={10}
+              sx={{
+                height: 10,
+                borderRadius: "4px",
+                color: `linear-gradient(to bottom right, ${primaryLight}, ${primaryMain})`,
+                "& .MuiSlider-thumb": {
+                  height: 20,
+                },
+              }}
+            />
           </Box>
         </Box>
 
         {/* Description */}
-        <Box mt="1.5rem" pb="5rem">
+        <Box mt="1.75rem" pb="5rem">
           <Typography fontSize="18px" fontWeight="bold" color={descriptionCol}>
             description
           </Typography>

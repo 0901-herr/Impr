@@ -27,11 +27,27 @@ class SectionDataService {
   }
 
   updateReview(data) {
-    return http.put("/review-edit", data);
+    const response = fetch(`http://localhost:5000/api/v1/home/review`, {
+      method: "PUT",
+      body: data,
+    });
+
+    return response;
   }
 
   deleteReview(id, userId) {
-    return http.delete(`/review-delete?id=${id}`, {
+    return http.delete(`/review?id=${id}`, {
+      data: { user_id: userId },
+    });
+  }
+
+  updateSection(data) {
+    console.log(data);
+    return http.put("/sections", data);
+  }
+
+  deleteSection(id, userId) {
+    return http.delete(`/section?id=${id}`, {
       data: { user_id: userId },
     });
   }

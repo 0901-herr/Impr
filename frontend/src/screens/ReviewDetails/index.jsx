@@ -121,6 +121,7 @@ const ReviewDetails = (props) => {
                 fontSize="16px"
                 fontWeight="bold"
                 color={descriptionCol}
+                paragraph
               >
                 description
               </Typography>

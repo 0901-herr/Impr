@@ -30,7 +30,6 @@ const storage = multer.diskStorage({
     cb(null, path.join(__dirname, "public/assets"));
   },
   filename: function (req, file, cb) {
-    // console.log(file.originalname);
     cb(null, file.originalname);
   },
 });
@@ -40,6 +39,11 @@ app.post(
   "/api/v1/home/review",
   upload.single("picture"),
   ReviewsCtrl.apiPostReview
+);
+app.put(
+  "/api/v1/home/review",
+  upload.single("picture"),
+  ReviewsCtrl.apiUpdateReview
 );
 
 // handle the routes

@@ -31,7 +31,6 @@ export default class ReviewsController {
 
   static async apiPostReview(req, res, next) {
     try {
-      const reviewId = req.body.review_id;
       const sectionId = req.body.section_id;
       const title = req.body.title;
       const picture_path = req.body.picture_path;
@@ -65,7 +64,6 @@ export default class ReviewsController {
   static async apiUpdateReview(req, res, next) {
     try {
       const reviewId = req.body.review_id;
-      const sectionId = req.body.section_id;
       const userId = req.body.user_id;
       const title = req.body.title;
       const picture_path = req.body.picture_path;
@@ -76,7 +74,6 @@ export default class ReviewsController {
 
       const reviewResponse = await ReviewsDAO.updateReview(
         reviewId,
-        sectionId,
         userId,
         title,
         picture_path,
@@ -107,7 +104,7 @@ export default class ReviewsController {
     try {
       const reviewId = req.query.id;
       const userId = req.body.user_id;
-      console.log(reviewId);
+      // console.log(reviewId);
       const reviewResponse = await ReviewsDAO.deleteReview(reviewId, userId);
       res.json({ status: "success" });
     } catch (e) {

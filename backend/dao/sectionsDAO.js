@@ -108,7 +108,7 @@ export default class SectionsDAO {
     try {
       const updateResponse = await sections.updateOne(
         { user_id: userId, _id: ObjectId(sectionId) },
-        { $set: { title: title } }
+        { $set: { name: "Philippe Yong", title: title } }
       );
 
       return updateResponse;

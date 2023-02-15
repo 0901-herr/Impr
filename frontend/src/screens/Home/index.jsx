@@ -27,19 +27,38 @@ const HomePage = () => {
   const titleCol = theme.palette.neutral.title;
   const calendarCol = theme.palette.neutral.calendar;
 
+  let initialReviewState = {
+    date: null,
+    description: "",
+    name: "",
+    picture_path: "",
+    rating: "5",
+    section_id: "",
+    summary: "",
+    title: "",
+    user_id: "",
+  };
+
+  const [sectionId, setSectionId] = useState("");
+  const [sectionTitle, setSectionTitle] = useState("");
+  const [currentReview, setCurrentReview] = useState(initialReviewState);
+  const [currentSection, setCurrentSection] = useState(null);
   const [isNavBarOpen, setIsNavBarOpen] = useState(true);
   const [isReviewDetailsOpen, setIsReviewDetailsOpen] = useState(false);
   const [isAddNewReview, setIsAddNewReview] = useState(false);
+  const [isEditReview, setIsEditReview] = useState(false);
   const [isAddNewSection, setIsAddNewSection] = useState(false);
-  const [currentReview, setCurrentReview] = useState(null);
-  const [sectionTitle, setSectionTitle] = useState("");
-  const [sectionId, setSectionId] = useState("");
+  const [isEditSection, setIsEditSection] = useState(false);
+  const [isRefetchSection, setIsRefetchSection] = useState(null);
 
   const navBarProps = {
+    currentSection,
+    setCurrentSection,
     setIsNavBarOpen,
     setSectionId,
     setSectionTitle,
     setIsAddNewSection,
+    setIsEditSection,
   };
 
   const reviewDetailsProps = {
@@ -51,20 +70,30 @@ const HomePage = () => {
   const reviewsProps = {
     sectionId,
     sectionTitle,
+    isRefetchSection,
     setCurrentReview,
     setIsReviewDetailsOpen,
     setIsAddNewReview,
+    setIsRefetchSection,
+    setIsEditReview,
   };
 
   const newReviewProps = {
+    sectionId,
+    currentReview,
+    isEditReview,
     isAddNewReview,
     setIsAddNewReview,
-    sectionId,
+    setIsEditReview,
+    setIsRefetchSection,
   };
 
   const newSectionProps = {
+    currentSection,
     isAddNewSection,
+    isEditSection,
     setIsAddNewSection,
+    setIsEditSection,
   };
 
   return (

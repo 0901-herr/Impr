@@ -1,18 +1,15 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Typography,
-  InputBase,
-  IconButton,
-  Dialog,
-  TextField,
-  useTheme,
-} from "@mui/material";
-import { EditOutlined, DeleteOutlined } from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, InputBase, Dialog, useTheme } from "@mui/material";
 import SectionDataService from "../../services/reviews";
 
 const NewSectionDialog = (props) => {
-  const { setIsAddNewSection, isAddNewSection } = props;
+  const {
+    currentSection,
+    isAddNewSection,
+    isEditSection,
+    setIsAddNewSection,
+    setIsEditSection,
+  } = props;
   const maxWidth = "600px";
 
   const theme = useTheme();
@@ -25,6 +22,7 @@ const NewSectionDialog = (props) => {
 
   const handleClose = () => {
     setIsAddNewSection(false);
+    setIsEditSection(false);
     clearFields();
   };
 
@@ -34,25 +32,40 @@ const NewSectionDialog = (props) => {
 
   const onClickDone = () => {
     var data = {
+      section_id: currentSection._id,
       user_id: "53a2b415cc3bd4ebac5eb6d4",
-      name: "Philippe Yong",
       title: title,
+      name: "Philippe Yong",
     };
 
-    SectionDataService.createSection(data)
-      .then((response) => {
-        setIsAddNewSection(false);
-        console.log(response.data);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    if (isEditSection) {
+      console.log("editing section...");
+      SectionDataService.updateSection(data)
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    } else {
+      SectionDataService.createSection(data)
+        .then((response) => {
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
 
     clearFields();
   };
 
+  useEffect(() => {
+    setTitle(currentSection?.title ?? "");
+  }, [currentSection, isEditSection]);
+
   return (
-    <Dialog onClose={handleClose} open={isAddNewSection}>
+    <Dialog onClose={handleClose} open={isAddNewSection || isEditSection}>
       <Box width={maxWidth} height="26vh" p="2rem">
         {/* Done button */}
         <Box display="flex" justifyContent="flex-end">

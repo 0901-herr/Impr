@@ -13,16 +13,16 @@ import {
   LogoutOutlined,
   PersonOutlineOutlined,
   Close,
+  EditOutlined,
+  DeleteOutlined,
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { setMode, setLogout } from "state";
 import { useNavigate } from "react-router-dom";
 
 import GradientText from "../../components/GradientText";
-import { sectionsData } from "./data.ts";
-import { menuOptionsData } from "./data.ts";
-
 import SectionDataService from "../../services/reviews";
+import Section from "../../components/Section";
 
 const Navbar = (props) => {
   const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
@@ -33,18 +33,22 @@ const Navbar = (props) => {
 
   const theme = useTheme();
 
-  const primaryLight = theme.palette.primary.light;
-  const primaryMain = theme.palette.primary.main;
   const menuText = theme.palette.neutral.menuText;
   const menuBackground = theme.palette.background.menu;
   const line = theme.palette.neutral.line;
   const hoverCol = theme.palette.neutral.hover;
 
-  const [sections, setSections] = useState(sectionsData);
-  const [currentSection, setCurrentSection] = useState(null);
+  const [sections, setSections] = useState([]);
 
-  const { setIsNavBarOpen, setSectionId, setSectionTitle, setIsAddNewSection } =
-    props;
+  const {
+    currentSection,
+    setCurrentSection,
+    setIsNavBarOpen,
+    setSectionId,
+    setSectionTitle,
+    setIsAddNewSection,
+    setIsEditSection,
+  } = props;
 
   const onClickSection = (section) => {
     setCurrentSection(section);
@@ -52,10 +56,17 @@ const Navbar = (props) => {
     setSectionTitle(section.title);
   };
 
+  const sectionProps = {
+    onClickSection,
+    setIsAddNewSection,
+    setIsEditSection,
+    currentSection,
+  };
+
   const retrieveSections = () => {
     SectionDataService.getAll()
       .then((response) => {
-        console.log(response.data);
+        // console.log(response.data);
         setSections(response.data.sections);
 
         if (sections != null) {
@@ -93,7 +104,7 @@ const Navbar = (props) => {
       </Box>
 
       <Box
-        p="0 0.8rem"
+        p="0 0.5rem"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -123,34 +134,10 @@ const Navbar = (props) => {
             </Typography>
           </Box>
 
-          {/* Section titles */}
+          {/* Sections */}
           <Box mt="1rem">
             {sections.map((section) => (
-              <Box
-                p="0.75rem 0.8rem"
-                sx={{
-                  borderRadius: "6px",
-                  "&:hover": {
-                    cursor: "pointer",
-                    backgroundColor: hoverCol,
-                  },
-                }}
-                onClick={() => {
-                  onClickSection(section);
-                }}
-              >
-                <GradientText
-                  fontWeight={currentSection === section ? "600" : "medium"}
-                  fontSize="15px"
-                  gradientColors={
-                    currentSection === section
-                      ? [primaryLight, primaryMain]
-                      : [menuText, menuText]
-                  }
-                >
-                  {section.title}
-                </GradientText>
-              </Box>
+              <Section {...{ sectionProps, section }} />
             ))}
           </Box>
         </Box>

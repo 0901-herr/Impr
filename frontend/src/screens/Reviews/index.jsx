@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
+import { useQuery } from "react-query";
 import {
   Box,
   Typography,
   CircularProgress,
+  IconButton,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 
 import FlexBetween from "../../components/FlexBetween.jsx";
 import GradientButton from "../../components/GradientButton.jsx";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import Review from "../../components/Review.jsx";
 import SectionDataService from "../../services/reviews";
@@ -24,7 +27,10 @@ const Reviews = (props) => {
   const titleCol = theme.palette.neutral.title;
   const calendarCol = theme.palette.neutral.calendarCol;
 
+  const [isDeleteReview, setIsDeleteReview] = useState(null);
+
   const {
+    setIsEditReview,
     setCurrentReview,
     setIsReviewDetailsOpen,
     setIsAddNewReview,
@@ -32,58 +38,38 @@ const Reviews = (props) => {
     sectionTitle,
   } = props;
 
-  const reviewProps = { setCurrentReview, setIsReviewDetailsOpen };
-
-  const initialSectionState = {
-    id: null,
-    name: "",
-    address: {},
-    cuisine: "",
-    reviews: [],
+  const reviewProps = {
+    setCurrentReview,
+    setIsReviewDetailsOpen,
+    setIsEditReview,
+    setIsDeleteReview,
   };
 
-  const [section, setSection] = useState(initialSectionState);
-  const [isLoading, setIsLoading] = useState(true);
+  const fetchSection = () => {
+    return SectionDataService.get(sectionId);
+  };
 
-  const getSection = (id) => {
-    SectionDataService.get(id)
-      .then((response) => {
-        setSection(response.data);
-        console.log(response.data);
-        setIsLoading(false);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+  const { data, status, refetch } = useQuery(
+    ["section", sectionId],
+    fetchSection
+  );
+
+  const refetchReviews = () => {
+    refetch();
+    console.log("refetching reviews...");
   };
 
   const onClickAddNewReview = () => {
-    console.log(sectionId);
     setIsAddNewReview(true);
   };
 
   useEffect(() => {
-    getSection(sectionId);
-  }, [sectionId]);
-
-  const deleteReview = (reviewId, index) => {
-    // SectionDataService.deleteReview(reviewId, props.user.id)
-    //   .then((response) => {
-    //     setRestaurant((prevState) => {
-    //       prevState.reviews.splice(index, 1);
-    //       return {
-    //         ...prevState,
-    //       };
-    //     });
-    //   })
-    //   .catch((e) => {
-    //     console.log(e);
-    //   });
-  };
+    refetchReviews();
+  }, [isDeleteReview]);
 
   return (
     <Box>
-      {isLoading ? (
+      {status === "loading" && (
         <Box
           width="100%"
           height="70vh"
@@ -93,16 +79,22 @@ const Reviews = (props) => {
         >
           <CircularProgress color={calendarCol} />
         </Box>
-      ) : (
-        <Box mt="2rem">
-          {/* Section title */}
-          <Box ml="0.75rem">
+      )}
+
+      {status === "success" && (
+        <Box mt="1rem">
+          <IconButton onClick={refetchReviews}>
+            <RefreshIcon sx={{ color: titleCol, fontSize: "24px" }} />
+          </IconButton>
+
+          {/* Section t"itle */}
+          <Box mt="1.25rem" ml="0.75rem">
             <Typography fontSize="30px" fontWeight="bold" color={titleCol}>
               {sectionTitle}
             </Typography>
           </Box>
 
-          <Box mt="1rem">
+          <Box mt="0.75rem">
             {/* Date */}
             <FlexBetween>
               <Box ml="0.75rem">
@@ -131,7 +123,7 @@ const Reviews = (props) => {
 
             {/* Reviews */}
             <Box mt="0.5rem">
-              {section.reviews.map((review) => {
+              {data?.data.reviews.map((review) => {
                 return <Review {...{ reviewProps, review }} />;
               })}
             </Box>
